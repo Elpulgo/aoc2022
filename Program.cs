@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using Aoc2022;
-using Aoc2022.Aoc2022;
+using Aoc2022.Aoc2023;
 
 Console.WriteLine("Hello, Advent!");
 
-// var day = new Day1(true);
+var day = new Day1(true);
 // var day = new Day2(true);
 // var day = new Day3(true);
 // var day = new Day4(true);
@@ -16,13 +16,13 @@ Console.WriteLine("Hello, Advent!");
 // var day = new Day10(true);
 // var day = new Day11(true);
 // var day = new Day12(true);
-var day = new Day13(true);
+// var day = new Day13(true);
 
 
 day.Execute();
 
 // Runner.RunAll("Aoc2022.Aoc2022");
-// Initializer.Run(2022);
+// Initializer.Run(2023);
 
 
 public static class Initializer

@@ -63,7 +63,9 @@ namespace Aoc2022.Aoc2022
                 allRows.Add(new DataRow(pairs[1]));
             }
             
-            var sorted = allRows.Sort(DataRow.SortByRules());
+            // var sorted = allRows.Sort(DataRow.SortByRules());
+
+            throw new NotImplementedException();
         }
     }
 
