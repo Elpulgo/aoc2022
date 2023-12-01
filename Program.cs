@@ -4,7 +4,7 @@ using Aoc2022.Aoc2023;
 
 Console.WriteLine("Hello, Advent!");
 
-// var day = new Day1(true);
+var day = new Day2(true);
 // var day = new Day2(true);
 // var day = new Day3(true);
 // var day = new Day4(true);
@@ -19,9 +19,9 @@ Console.WriteLine("Hello, Advent!");
 // var day = new Day13(true);
 
 
-// day.Execute();
+day.Execute();
 
-Runner.RunAll("Aoc2022.Aoc2021");
+// Runner.RunAll("Aoc2022.Aoc2021");
 // Initializer.Run(2023);
 
 

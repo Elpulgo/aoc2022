@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 
 namespace Aoc2022;
 
@@ -45,6 +46,19 @@ public abstract class BaseDay
         _resultPartOne = result;
     }
 
+    protected void FirstSolution(int result)
+    {
+        StopTimerOne();
+
+        if (_shouldPrint)
+        {
+            Console.WriteLine($"{ReadDescription(_day)} - {_day} - Part 1: {result} | ({TimePartOne} s)");
+            return;
+        }
+
+        _resultPartOne = result.ToString(CultureInfo.InvariantCulture);
+    }
+
     protected void SecondSolution(string result)
     {
         StopTimerTwo();
@@ -58,6 +72,41 @@ public abstract class BaseDay
         _resultPartTwo = result;
     }
 
+    protected void SecondSolution(int result)
+    {
+        StopTimerTwo();
+
+        if (_shouldPrint)
+        {
+            Console.WriteLine($"{ReadDescription(_day)} - {_day} - Part 2: {result} | ({TimePartTwo} s)");
+            return;
+        }
+
+        _resultPartTwo = result.ToString(CultureInfo.InvariantCulture);
+    }
+
+    protected IEnumerable<string> ReadInput(bool partOne, bool partTwo = false)
+    {
+        var lines = File
+            .ReadAllLines(Path.Combine(
+                FileHelpers.GetFileRootDirectory(),
+                _year.ToString(),
+                _day.SanitizeDay(),
+                $"{_day}.txt"));
+
+        if (partOne)
+        {
+            StartTimerOne();
+        }
+
+        if (partTwo)
+        {
+            StartTimerTwo();
+        }
+
+        return lines;
+    }
+
     protected IEnumerable<string> ReadInput()
         => File
             .ReadAllLines(Path.Combine(
@@ -65,7 +114,7 @@ public abstract class BaseDay
                 _year.ToString(),
                 _day.SanitizeDay(),
                 $"{_day}.txt"));
-    
+
     protected string ReadInputRaw()
         => File
             .ReadAllText(Path.Combine(
@@ -91,6 +140,7 @@ public abstract class BaseDay
 
     public void Print()
     {
-        Console.WriteLine($"{ReadDescription(_day)}\t\t | {_resultPartOne} ({TimePartOne} s) | {_resultPartTwo} ({TimePartTwo} s)");
+        Console.WriteLine(
+            $"{ReadDescription(_day)}\t\t | {_resultPartOne} ({TimePartOne} s) | {_resultPartTwo} ({TimePartTwo} s)");
     }
 }
