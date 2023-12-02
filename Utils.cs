@@ -59,6 +59,8 @@ public static class Utils
 
     public static int CharToInt(this char c) => c - '0';
     
+    public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
+    
     
     /// <summary>
     /// Example input:
