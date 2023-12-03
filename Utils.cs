@@ -55,13 +55,14 @@ public static class Utils
 
     public static int GetAlphabeticIndexFromChar(this char c) => char.ToUpper(c) - 64;
 
-    public static void Swap<T>(this T[] data, int first, int last) => (data[first], data[last]) = (data[last], data[first]);
+    public static void Swap<T>(this T[] data, int first, int last) =>
+        (data[first], data[last]) = (data[last], data[first]);
 
     public static int CharToInt(this char c) => c - '0';
-    
+
     public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
-    
-    
+
+
     /// <summary>
     /// Example input:
     /// 
@@ -86,7 +87,7 @@ public static class Utils
         string[] input) where T : GraphPoint
     {
         if (x - 1 > -1)
-            yield return new GraphPoint(x - 1, y, input[y][x -1]);
+            yield return new GraphPoint(x - 1, y, input[y][x - 1]);
         if (x + 1 < width)
             yield return new GraphPoint(x + 1, y, input[y][x + 1]);
         if (y - 1 > -1)
@@ -94,7 +95,10 @@ public static class Utils
         if (y + 1 < height)
             yield return new GraphPoint(x, y + 1, input[y + 1][x]);
     }
-    
+
+    public static IEnumerable<(T, int)> SelectWithIndex<T>(this IEnumerable<T> source)
+        => source.Select((s, i) => (s, i));
+
     public static IEnumerable<GraphPoint> BuildNeighbours<T>(
         int x,
         int y,
