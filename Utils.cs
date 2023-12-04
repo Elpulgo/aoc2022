@@ -60,6 +60,16 @@ public static class Utils
 
     public static int CharToInt(this char c) => c - '0';
 
+    public static string[][] SplitByAndThen(this string line, char first, char second)
+    {
+        var firstSplit = line.Split(first, StringSplitOptions.RemoveEmptyEntries);
+        var secondSplit = firstSplit.Length > 1
+            ? firstSplit[1].Split(second)
+            : Array.Empty<string>();
+
+        return new[] { firstSplit, secondSplit };
+    }
+
     public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
 
 
@@ -114,4 +124,7 @@ public static class Utils
         if (y + 1 < height)
             yield return new GraphPoint(x, y + 1);
     }
+    
+    public static IEnumerable<INode> Flatten(this IEnumerable<INode> e) =>
+        e.SelectMany(c => c.Children.Flatten()).Concat(e);
 }

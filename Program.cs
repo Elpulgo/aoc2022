@@ -4,7 +4,7 @@ using Aoc2022.Aoc2023;
 
 Console.WriteLine("Hello, Advent!");
 
-var day = new Day3(true);
+var day = new Day4(true);
 // var day = new Day2(true);
 // var day = new Day3(true);
 // var day = new Day4(true);
