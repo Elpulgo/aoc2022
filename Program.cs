@@ -4,7 +4,7 @@ using Aoc2022.Aoc2023;
 
 Console.WriteLine("Hello, Advent!");
 
-var day = new Day4(true);
+var day = new Day5(true);
 // var day = new Day2(true);
 // var day = new Day3(true);
 // var day = new Day4(true);
@@ -38,7 +38,7 @@ public static class Initializer
 
         var createdYear = Directory.CreateDirectory(yearDirectory);
 
-        for (var i = 1; i < 24; i++)
+        for (var i = 6; i <= 24; i++)
         {
             var day = Path.Join(createdYear.FullName, i.ToString());
             if (Directory.Exists(day))
@@ -48,7 +48,7 @@ public static class Initializer
             File.Create(Path.Join(dayDirectory.FullName, $"Day{i}.txt"));
             File.Create(Path.Join(dayDirectory.FullName, $"Day{i}.md"));
 
-            File.WriteAllText(Path.Join(dayDirectory.FullName, $"Day{i}.cs"), Template($"Day{i}", year));
+            File.WriteAllText(Path.Join(dayDirectory.FullName, $"Day{i}.cs"), TemplateV2($"Day{i}", year));
         }
     }
 
@@ -69,6 +69,33 @@ namespace Aoc2022.Aoc{year}
         {{
            
         }}
+    }}
+}}";
+
+    private static string TemplateV2(string day, int year) => $@"
+namespace Aoc2022.Aoc{year};
+
+internal class {day} : BaseDay
+{{
+    public {day}(bool shouldPrint) : base({year}, nameof({day}), shouldPrint)
+    {{
+    }}
+
+    public override void Execute()
+    {{
+        PartOne();
+        PartTwo();
+    }}
+
+    private void PartOne()
+    {{
+        var input = ReadInput(false, partTwo: true).ToList();
+    }}
+
+
+    private void PartTwo()
+    {{
+        var input = ReadInput(false, partTwo: true).ToList();
     }}
 }}";
 }

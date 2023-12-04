@@ -1,9 +1,9 @@
 
 namespace Aoc2022.Aoc2023;
 
-internal class Day13 : BaseDay
+internal class Day24 : BaseDay
 {
-    public Day13(bool shouldPrint) : base(2023, nameof(Day13), shouldPrint)
+    public Day24(bool shouldPrint) : base(2023, nameof(Day24), shouldPrint)
     {
     }
 
