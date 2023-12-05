@@ -58,6 +58,19 @@ public abstract class BaseDay
 
         _resultPartOne = result.ToString(CultureInfo.InvariantCulture);
     }
+    
+    protected void FirstSolution(long result)
+    {
+        StopTimerOne();
+
+        if (_shouldPrint)
+        {
+            Console.WriteLine($"{ReadDescription(_day)} - {_day} - Part 1: {result} | ({TimePartOne} s)");
+            return;
+        }
+
+        _resultPartOne = result.ToString(CultureInfo.InvariantCulture);
+    }
 
     protected void SecondSolution(string result)
     {
@@ -73,6 +86,19 @@ public abstract class BaseDay
     }
 
     protected void SecondSolution(int result)
+    {
+        StopTimerTwo();
+
+        if (_shouldPrint)
+        {
+            Console.WriteLine($"{ReadDescription(_day)} - {_day} - Part 2: {result} | ({TimePartTwo} s)");
+            return;
+        }
+
+        _resultPartTwo = result.ToString(CultureInfo.InvariantCulture);
+    }
+    
+    protected void SecondSolution(long result)
     {
         StopTimerTwo();
 

@@ -64,7 +64,7 @@ public static class Utils
     {
         var firstSplit = line.Split(first, StringSplitOptions.RemoveEmptyEntries);
         var secondSplit = firstSplit.Length > 1
-            ? firstSplit[1].Split(second)
+            ? firstSplit[1].Split(second, StringSplitOptions.RemoveEmptyEntries)
             : Array.Empty<string>();
 
         return new[] { firstSplit, secondSplit };
@@ -72,6 +72,15 @@ public static class Utils
 
     public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
 
+    public static void MergeDictionary<TKey, TValue>(this Dictionary<TKey, TValue> me, Dictionary<TKey, TValue> merge)
+    {
+        foreach (var item in merge)
+        {
+            me[item.Key] = item.Value;
+        }
+    }
+
+    public static IEnumerable<T> AppendLine<T>(this IEnumerable<T> source, T value) => source.Concat(new[] { value });
 
     /// <summary>
     /// Example input:
@@ -124,7 +133,7 @@ public static class Utils
         if (y + 1 < height)
             yield return new GraphPoint(x, y + 1);
     }
-    
+
     public static IEnumerable<INode> Flatten(this IEnumerable<INode> e) =>
         e.SelectMany(c => c.Children.Flatten()).Concat(e);
 }
