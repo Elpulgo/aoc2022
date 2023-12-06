@@ -71,6 +71,8 @@ public static class Utils
     }
 
     public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
+    
+    public static long ParseSingleLong(this string s) => long.Parse(s.Where(char.IsNumber).ToArray());
 
     public static void MergeDictionary<TKey, TValue>(this Dictionary<TKey, TValue> me, Dictionary<TKey, TValue> merge)
     {
@@ -81,6 +83,29 @@ public static class Utils
     }
 
     public static IEnumerable<T> AppendLine<T>(this IEnumerable<T> source, T value) => source.Concat(new[] { value });
+    
+    public static HashSet<long> GetDuplicates(this List<long> pInputList1, List<long> pInputList2)
+    {
+        var outputList = new List<long>();
+
+        foreach (var x in pInputList2)
+        {
+            if (pInputList1.Contains(x))
+            {
+                outputList.Add(x);
+            }
+        }
+        
+        foreach (var x in pInputList1)
+        {
+            if (pInputList2.Contains(x))
+            {
+                outputList.Add(x);
+            }
+        }
+
+        return outputList.ToHashSet();
+    }
 
     /// <summary>
     /// Example input:

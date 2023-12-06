@@ -31,31 +31,49 @@ internal class Day5 : BaseDay
         FirstSolution(result);
     }
 
-
     private void PartTwo()
     {
         var input = ReadInput(false, partTwo: true).ToList();
         var seedRanges = input[0].SplitByAndThen(':', ' ')[1];
 
-        var ranges = new List<(long, long)>();
+        var ranges = new List<(long From, long To)>();
+        var mapInfos = Parse(input);
 
         for (int i = 0; i < seedRanges.Length; i += 2)
         {
             var startSeed = long.Parse(seedRanges[i]);
             var steps = long.Parse(seedRanges[i + 1]);
 
-            ranges.Add((startSeed, steps));
+            ranges.Add((startSeed, startSeed + steps));
         }
 
-        var min = ranges.Select(s => s.Item1).Min();
-        var max = ranges.Select(s => s.Item1 + s.Item2).Max();
+        foreach (var mapInfo in mapInfos)
+        {
+            var orderedParts = mapInfo.Parts.OrderBy(x => x.SourceRangeStart).ToList();
+            var mapRanges = new List<(long from, long to)>();
 
-        var between = max - min;
+            foreach (var range in ranges)
+            {
+                var currentRange = range;
+                foreach (var part in orderedParts)
+                {
+                    if (!part.HandleFrom(ref currentRange, ref mapRanges))
+                        break;
 
-        var mapInfos = Parse(input);
+                    if (!part.HandleTo(ref currentRange, ref mapRanges))
+                        break;
+                }
 
-        var range = new List<long>();
-        SecondSolution(range.Min());
+                // If range is valid, add to map
+                if (currentRange.From <= currentRange.To)
+                    mapRanges.Add(currentRange);
+            }
+
+            ranges = mapRanges;
+        }
+
+        var result = ranges.Min(r => r.From);
+        SecondSolution(result);
     }
 
     private static List<MapInfo> Parse(List<string> lines)
@@ -90,17 +108,12 @@ internal class Day5 : BaseDay
 
 internal class MapInfo
 {
-    private readonly string[] _headerLines;
-
     public MapInfo(IReadOnlyList<string> lines)
     {
-        _headerLines = lines[0].Replace(" map:", "").Split("-", StringSplitOptions.RemoveEmptyEntries);
         Parts = lines.Skip(1).Select(s => new MapParts(s)).ToList();
     }
 
-    public string Source => _headerLines[0];
-    public string Destination => _headerLines[2];
-    private List<MapParts> Parts { get; }
+    public List<MapParts> Parts { get; }
 
     public long FindValue(long source)
     {
@@ -127,9 +140,13 @@ internal class MapParts
         _lineParts = line.Split(" ");
     }
 
-    public long DestRangeStart => long.Parse(_lineParts[0]);
+    private long From => SourceRangeStart;
+    private long To => SourceRangeStart + RangeLength - 1;
+    private long Offset => DestRangeStart - SourceRangeStart;
+
+    private long DestRangeStart => long.Parse(_lineParts[0]);
     public long SourceRangeStart => long.Parse(_lineParts[1]);
-    public long RangeLength => long.Parse(_lineParts[2]);
+    private long RangeLength => long.Parse(_lineParts[2]);
 
     public (bool, long) FindValue(long source)
     {
@@ -141,5 +158,48 @@ internal class MapParts
         var steps = SourceRangeStart + RangeLength - source;
 
         return (true, DestRangeStart + RangeLength - steps);
+    }
+
+    public bool HandleFrom(
+        ref (long From, long To) currentRange,
+        ref List<(long From, long To)> rangesForPart)
+    {
+        if (currentRange.From < From)
+        {
+            // Set start of range
+            // Take min of last in range || start of part
+            rangesForPart.Add((
+                currentRange.From,
+                Math.Min(currentRange.To, From - 1)));
+            currentRange.From = From;
+
+            // Outside bounce
+            if (currentRange.From > currentRange.To)
+                return false;
+        }
+
+        return true;
+    }
+
+    public bool HandleTo(
+        ref (long From, long To) currentRange,
+        ref List<(long From, long To)> rangesForPart)
+    {
+        if (currentRange.From <= To)
+        {
+            // Set end of range
+            // Take min of last in range || destination of part
+            rangesForPart.Add((
+                currentRange.From + Offset,
+                Math.Min(currentRange.To, To) + Offset));
+
+            currentRange.From = To + 1;
+
+            // Outside bounce
+            if (currentRange.From > currentRange.To)
+                return false;
+        }
+
+        return true;
     }
 }
