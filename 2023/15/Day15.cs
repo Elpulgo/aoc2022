@@ -15,7 +15,7 @@ internal class Day15 : BaseDay
 
     private void PartOne()
     {
-        var input = ReadInput(false, partTwo: true).ToList();
+        var input = ReadInput(true).ToList();
     }
 
 

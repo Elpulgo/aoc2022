@@ -4,26 +4,11 @@ using Aoc2022.Aoc2023;
 
 Console.WriteLine("Hello, Advent!");
 
-var day = new Day6(true);
-// var day = new Day2(true);
-// var day = new Day3(true);
-// var day = new Day4(true);
-// var day = new Day5(true);
-// var day = new Day6(true);
-// var day = new Day7(true);
-// var day = new Day8(true);
-// var day = new Day9(true);
-// var day = new Day10(true);
-// var day = new Day11(true);
-// var day = new Day12(true);
-// var day = new Day13(true);
-
-
+var day = new Day7(true);
 day.Execute();
 
 // Runner.RunAll("Aoc2022.Aoc2021");
 // Initializer.Run(2023);
-
 
 public static class Initializer
 {
@@ -38,9 +23,10 @@ public static class Initializer
 
         var createdYear = Directory.CreateDirectory(yearDirectory);
 
-        for (var i = 6; i <= 24; i++)
+        for (var i = 0; i <= 24; i++)
         {
             var day = Path.Join(createdYear.FullName, i.ToString());
+            
             if (Directory.Exists(day))
                 continue;
 
@@ -89,7 +75,7 @@ internal class {day} : BaseDay
 
     private void PartOne()
     {{
-        var input = ReadInput(false, partTwo: true).ToList();
+        var input = ReadInput(true).ToList();
     }}
 
 
