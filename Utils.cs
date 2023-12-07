@@ -140,8 +140,8 @@ public static class Utils
             yield return new GraphPoint(x, y + 1, input[y + 1][x]);
     }
 
-    public static IEnumerable<(T, int)> SelectWithIndex<T>(this IEnumerable<T> source)
-        => source.Select((s, i) => (s, i));
+    public static IEnumerable<(T Value, int Index)> SelectWithIndex<T>(this IEnumerable<T> source, int offset = 0)
+        => source.Select((s, i) => (s, i + offset));
 
     public static IEnumerable<GraphPoint> BuildNeighbours<T>(
         int x,
