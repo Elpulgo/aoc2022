@@ -96,15 +96,15 @@ internal class Day8 : BaseDay
             }
         }
 
-        SecondSolution(LeastCommonDiscriminator(allSteps.ToArray()));
+        SecondSolution(LeastCommonMulitple(allSteps.ToArray()));
     }
 
-    private static long GreatestCommonDiscriminator(long n1, long n2) => n2 == 0
+    private static long GreatestCommonMulitiple(long n1, long n2) => n2 == 0
         ? n1
-        : GreatestCommonDiscriminator(n2, n1 % n2);
+        : GreatestCommonMulitiple(n2, n1 % n2);
 
-    private static long LeastCommonDiscriminator(long[] numbers) =>
-        numbers.Aggregate((S, val) => S * val / GreatestCommonDiscriminator(S, val));
+    private static long LeastCommonMulitple(long[] numbers) =>
+        numbers.Aggregate((S, val) => S * val / GreatestCommonMulitiple(S, val));
 
 
     private static (Dictionary<string, string[]>, List<int>) Parse(
