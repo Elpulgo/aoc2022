@@ -1,14 +1,14 @@
 ﻿using System.Reflection;
 using Aoc2022;
-using Aoc2022.Aoc2023;
+using Aoc2022.Aoc2024;
 
 Console.WriteLine("Hello, Advent!");
 
-var day = new Day10(true);
+var day = new Day1(true);
 day.Execute();
 
 // Runner.RunAll("Aoc2022.Aoc2021");
-// Initializer.Run(2023);
+// Initializer.Run(2024);
 
 public static class Initializer
 {
