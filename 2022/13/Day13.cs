@@ -11,7 +11,7 @@ namespace Aoc2022.Aoc2022
 
         public override void Execute()
         {
-            var input = ReadInputRaw()
+            var input = ReadInputRaw(true)
                 .Split("\r\n\r\n", StringSplitOptions.RemoveEmptyEntries)
                 .Select((s, i) => (s.Split("\r\n", StringSplitOptions.RemoveEmptyEntries), i))
                 .ToArray();

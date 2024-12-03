@@ -4,7 +4,7 @@ using Aoc2022.Aoc2024;
 
 Console.WriteLine("Hello, Advent!");
 
-var day = new Day2(true);
+var day = new Day3(true);
 day.Execute();
 
 // Runner.RunAll("Aoc2022.Aoc2021");

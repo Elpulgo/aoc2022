@@ -58,7 +58,7 @@ public abstract class BaseDay
 
         _resultPartOne = result.ToString(CultureInfo.InvariantCulture);
     }
-    
+
     protected void FirstSolution(long result)
     {
         StopTimerOne();
@@ -97,7 +97,7 @@ public abstract class BaseDay
 
         _resultPartTwo = result.ToString(CultureInfo.InvariantCulture);
     }
-    
+
     protected void SecondSolution(long result)
     {
         StopTimerTwo();
@@ -141,13 +141,28 @@ public abstract class BaseDay
                 _day.SanitizeDay(),
                 $"{_day}.txt"));
 
-    protected string ReadInputRaw()
-        => File
+    protected string ReadInputRaw(bool partOne, bool partTwo = false)
+    {
+        var raw = File
             .ReadAllText(Path.Combine(
                 FileHelpers.GetFileRootDirectory(),
                 _year.ToString(),
                 _day.SanitizeDay(),
                 $"{_day}.txt"));
+        
+        
+        if (partOne)
+        {
+            StartTimerOne();
+        }
+
+        if (partTwo)
+        {
+            StartTimerTwo();
+        }
+
+        return raw;
+    }
 
     private string ReadDescription(string day)
         => File.ReadAllLines(Path.Combine(

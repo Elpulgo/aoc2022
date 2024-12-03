@@ -21,7 +21,7 @@ namespace Aoc2022.Aoc2021
 
         private ulong Execute(int days)
         {
-            var initialLanternFish = ReadInputRaw()
+            var initialLanternFish = ReadInputRaw(true)
                 .Split(",")
                 .Select(s => Convert.ToInt32(s))
                 .ToList();
