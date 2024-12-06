@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace Aoc2022.Aoc2024;
 
 internal class Day6 : BaseDay
@@ -15,12 +17,83 @@ internal class Day6 : BaseDay
     private void PartOne()
     {
         var input = ReadInput(true).ToList();
-
-        var visited = new HashSet<Coord>();
-
         var (currentCoord, map) = BuildMap(input);
+        var visited = GetGuardVisitCoords(currentCoord, map);
+        FirstSolution(visited.Count);
+    }
 
-        visited.Add(currentCoord);
+    private void PartTwo()
+    {
+        var input = ReadInput(false, partTwo: true).ToList();
+        var (currentCoord, map) = BuildMap(input);
+        var visited = GetGuardVisitCoords(currentCoord, map)
+            .Where(w => w != currentCoord)
+            .ToList();
+
+        var starting = new Coord(currentCoord.X, currentCoord.Y);
+        var sum = 0;
+
+        Parallel.ForEach(
+            visited,
+            new ParallelOptions {MaxDegreeOfParallelism = Environment.ProcessorCount},
+            coord =>
+            {
+                var currentCoordLocal = starting;
+                var clonedMap = new Dictionary<Coord, bool>(map)
+                {
+                    [coord] = true
+                };
+
+                var vis = new ConcurrentDictionary<Coord, int>();
+
+                var exitedMap = false;
+                var looped = false;
+                var direction = Direction.Up;
+
+                do
+                {
+                    if (vis.TryGetValue(currentCoordLocal, out var c1) && c1 > 4)
+                    {
+                        looped = true;
+                        break;
+                    }
+
+                    if (IsOutOfBounds(currentCoordLocal, clonedMap))
+                    {
+                        exitedMap = true;
+                        continue;
+                    }
+
+                    var nextCoord = GetCoordInNewDirection(currentCoordLocal, direction);
+
+                    if (!vis.TryAdd(currentCoordLocal, 1))
+                    {
+                        vis[currentCoordLocal]++;
+                    }
+
+                    if (IsObstacle(nextCoord, clonedMap))
+                    {
+                        direction = GetNewDirection(direction);
+                        continue;
+                    }
+
+                    currentCoordLocal = nextCoord;
+                } while (!exitedMap);
+
+                clonedMap[coord] = false;
+
+                if (looped)
+                {
+                    Interlocked.Increment(ref sum);
+                }
+            });
+
+        SecondSolution(sum);
+    }
+
+    private static HashSet<Coord> GetGuardVisitCoords(Coord currentCoord, Dictionary<Coord, bool> map)
+    {
+        var visited = new HashSet<Coord> {currentCoord};
 
         var exitedMap = false;
         var direction = Direction.Up;
@@ -45,115 +118,8 @@ internal class Day6 : BaseDay
             visited.Add(nextCoord);
         } while (!exitedMap);
 
-        FirstSolution(visited.Count);
-    }
 
-
-    private void PartTwo()
-    {
-        var input = ReadInput(false, partTwo: true).ToList();
-        var (currentCoord, map) = BuildMap(input);
-
-        var starting = new Coord(currentCoord.X, currentCoord.Y);
-        var sum = 0;
-
-        var v = map.Where(m => !m.Value && m.Key != currentCoord);
-        var countOuter = 0;
-        var okayLoop = new List<Coord>();
-        var notOkayLoop = new List<Coord>();
-
-
-        foreach (var m in v)
-        {
-            countOuter++;
-            currentCoord = starting;
-            map[m.Key] = true;
-            var visited = new HashSet<Coord>();
-
-            var obstacleHitWithSameDirection = new HashSet<Direction>();
-
-            visited.Add(starting);
-
-            var vis = new Dictionary<Coord, int>();
-
-            var exitedMap = false;
-            var looped = false;
-            var direction = Direction.Up;
-
-            var count = 0;
-            do
-            {
-
-                if (vis.TryGetValue(currentCoord, out var c1) && c1 > 4)
-                {
-                    looped = true;
-                    break;
-                }
-                
-                count++;
-                if (count > (input.Count * input[0].Length) * 10)
-                {
-                    looped = true;
-                    notOkayLoop.Add(m.Key);
-                    break;
-                }
-
-                if (IsOutOfBounds(currentCoord, map))
-                {
-                    exitedMap = true;
-                    continue;
-                }
-
-                var nextCoord = GetCoordInNewDirection(currentCoord, direction);
-
-                if (vis.TryGetValue(currentCoord, out var c))
-                {
-                    vis[currentCoord]++;
-                }
-                else
-                {
-                    vis[currentCoord] = 1;
-                }
-
-                var isObstacle = IsObstacle(nextCoord, map);
-
-                if (isObstacle)
-                {
-                    if (nextCoord == m.Key)
-                    {
-                        if (obstacleHitWithSameDirection.Contains(direction))
-                        {
-                            looped = true;
-                            okayLoop.Add(m.Key);
-                            break;
-                        }
-                        else
-                        {
-                            obstacleHitWithSameDirection.Add(direction);
-                        }
-                    }
-                    
-                    direction = GetNewDirection(direction);
-                    continue;
-                }
-
-                currentCoord = nextCoord;
-            } while (!exitedMap);
-
-            /* x:3 y: 6
-             * x:6 y: 7
-             * x:7 y: 7
-             * x:1 y: 8
-             * x:3 y: 8
-             * x:7 y: 9 ???
-             */
-
-
-            map[m.Key] = false;
-            sum += looped ? 1 : 0;
-        }
-
-        SecondSolution(sum);
+        return visited;
     }
 
     private static bool IsOutOfBounds(Coord coord, Dictionary<Coord, bool> map) => !map.ContainsKey(coord);
@@ -185,10 +151,10 @@ internal class Day6 : BaseDay
 
     private static Coord GetCoordInNewDirection(Coord coord, Direction direction) => direction switch
     {
-        Direction.Up => coord with { Y = coord.Y - 1 },
-        Direction.Right => coord with { X = coord.X + 1 },
-        Direction.Down => coord with { Y = coord.Y + 1 },
-        Direction.Left => coord with { X = coord.X - 1 },
+        Direction.Up => coord with {Y = coord.Y - 1},
+        Direction.Right => coord with {X = coord.X + 1},
+        Direction.Down => coord with {Y = coord.Y + 1},
+        Direction.Left => coord with {X = coord.X - 1},
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null)
     };
 
