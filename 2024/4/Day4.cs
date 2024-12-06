@@ -1,19 +1,11 @@
-using System.Text.RegularExpressions;
+using System.Text;
 
 namespace Aoc2022.Aoc2024;
 
 internal class Day4 : BaseDay
 {
-    private Regex XmasRegex = new(@"X.*M.*A.*S", RegexOptions.Compiled);
-    private Regex XmasRegexReverse = new(@"S.*A.*M.*X", RegexOptions.Compiled);
+    private Dictionary<(int X, int Y), char> _matrix = new();
 
-    private HashSet<char> WhiteList = new()
-    {
-        'X',
-        'M',
-        'A',
-        'S'
-    };
 
     public Day4(bool shouldPrint) : base(2024, nameof(Day4), shouldPrint)
     {
@@ -25,186 +17,147 @@ internal class Day4 : BaseDay
         PartTwo();
     }
 
+
     private void PartOne()
     {
-        var input = ReadInput(true).ToList();
+        var lines = ReadInput(true)
+            .Select(s => s.ToCharArray())
+            .ToList();
 
-        var max = input.Count - 1;
-
-        var columns = new Dictionary<int, List<char>>();
-        var diagonalLeftToRight = LeftToRight(max, input);
-        var diagonalRightToLeft = RightToLeft(max, input);
-
-        foreach (var t in input)
+        for (var y = 0; y < lines.Count; y++)
         {
-            var row = t.ToCharArray();
-            for (int x = 0; x < row.Length; x++)
+            for (var x = 0; x < lines[y].Length; x++)
             {
-                if (WhiteList.Contains(row[x]))
-                {
-                    if (columns.ContainsKey(x))
-                    {
-                        columns[x].Add(row[x]);
-                    }
-                    else
-                    {
-                        columns[x] = new List<char>
-                        {
-                            row[x]
-                        };
-                    }
-                }
+                _matrix.Add((x, y), lines[y][x]);
             }
         }
 
+        const string expectedWord = "XMAS";
+        const string expectedWordReverse = "SAMX";
+
         var sum = 0;
+        var keys = new HashSet<string>();
 
-        foreach (var row in input)
+        for (var y = 0; y < lines.Count; y++)
         {
-            var target = new string(row.Where(w => WhiteList.Contains(w)).ToArray());
-            sum += SumRegexes(target);
-        }
+            for (var x = 0; x < lines[y].Length; x++)
+            {
+                foreach (var d in Enum.GetValues(typeof(Direction)).Cast<Direction>())
+                {
+                    var neighbours = new[] {(X: x, Y: y)}.Concat(GetNeighbours((x, y), d, 3)).ToList();
+                    var word = StringContainsMatch(neighbours);
 
-        foreach (var col in columns)
-        {
-            var target = new string(col.Value.ToArray());
-            sum += SumRegexes(target);
-        }
+                    if (word is expectedWord or expectedWordReverse)
+                    {
+                        var key = string.Join(" ",
+                            neighbours.OrderBy(o => o.X).ThenBy(o => o.Y).Select(s => $"{s.X}/{s.Y}"));
 
-        foreach (var diaLeftToRight in diagonalLeftToRight)
-        {
-            sum += SumRegexes(diaLeftToRight);
-        }
-
-        foreach (var diaRightToLeft in diagonalRightToLeft)
-        {
-            sum += SumRegexes(diaRightToLeft);
+                        if (!keys.Contains(key))
+                        {
+                            sum++;
+                            keys.Add(key);
+                        }
+                    }
+                }
+            }
         }
 
         FirstSolution(sum);
     }
 
-    private int SumRegexes(string input)
+    private string StringContainsMatch(IEnumerable<(int X, int Y)> coords)
     {
-        var sum = 0;
-        for (Match match = XmasRegex.Match(input); match.Success; match = XmasRegex.Match(input, match.Index + 1))
+        var sb = new StringBuilder();
+
+        foreach (var (x, y) in coords)
         {
-            sum++;
-        }
-        
-        for (Match match = XmasRegexReverse.Match(input); match.Success; match = XmasRegexReverse.Match(input, match.Index + 1))
-        {
-            sum++;
+            sb.Append(_matrix[(x, y)]);
         }
 
-        return sum;
+        return sb.ToString();
     }
 
-    private List<string> RightToLeft(int max, List<string> input)
+    private IEnumerable<(int X, int Y)> GetNeighbours(
+        (int X, int Y) coord,
+        Direction direction,
+        int steps)
     {
-        var diagonalRightToLeft = new List<string>();
-        
-        // RIGHT TO LEFT RIGHT LEFT
-        for (int i = max; i >= 0; i--)
+        for (int i = 1; i <= steps; i++)
         {
-            var diagonalRightToLeftX = i;
-            var diagonalRightToLeftY = 0;
-            
-            var rightToLeft = new List<char>();
-            while (diagonalRightToLeftX >= 0 && diagonalRightToLeftY <= max)
+            switch (direction)
             {
-                var target = input[diagonalRightToLeftY].ToCharArray()[diagonalRightToLeftX];
-                if (WhiteList.Contains(target))
+                // Top
+                case Direction.N:
                 {
-                    rightToLeft.Add(target);
+                    if (_matrix.ContainsKey((coord.X, coord.Y - i)))
+                        yield return (coord.X, coord.Y - i);
+                    break;
                 }
-
-                diagonalRightToLeftY++;
-                diagonalRightToLeftX--;
-            }
-
-            if (i == max)
-            {
-                diagonalRightToLeft.Add(new string(rightToLeft.ToArray()));
-                continue;
-            }
-            
-            diagonalRightToLeftX = 0;
-            diagonalRightToLeftY = i;
-            
-            diagonalRightToLeft.Add(new string(rightToLeft.ToArray()));
-
-            rightToLeft = new List<char>();
-            while (diagonalRightToLeftX >= 0 && diagonalRightToLeftY <= max)
-            {
-                var target = input[diagonalRightToLeftY].ToCharArray()[diagonalRightToLeftX];
-                if (WhiteList.Contains(target))
+                // Bottom
+                case Direction.S:
                 {
-                    rightToLeft.Add(target);
+                    if (_matrix.ContainsKey((coord.X, coord.Y + i)))
+                        yield return (coord.X, coord.Y + i);
+                    break;
                 }
-
-                diagonalRightToLeftY++;
-                diagonalRightToLeftX--;
+                // Left
+                case Direction.W:
+                {
+                    if (_matrix.ContainsKey((coord.X - i, coord.Y)))
+                        yield return (coord.X - i, coord.Y);
+                    break;
+                }
+                // Right
+                case Direction.E:
+                {
+                    if (_matrix.ContainsKey((coord.X + i, coord.Y)))
+                        yield return (coord.X + i, coord.Y);
+                    break;
+                }
+                // Diagonal Left Top
+                case Direction.SW:
+                {
+                    if (_matrix.ContainsKey((coord.X - i, coord.Y - i)))
+                        yield return (coord.X - i, coord.Y - i);
+                    break;
+                }
+                // Diagonal Right Top
+                case Direction.SE:
+                {
+                    if (_matrix.ContainsKey((coord.X + i, coord.Y - i)))
+                        yield return (coord.X + i, coord.Y - i);
+                    break;
+                }
+                // Diagonal Left Bottom
+                case Direction.NW:
+                {
+                    if (_matrix.ContainsKey((coord.X - i, coord.Y + i)))
+                        yield return (coord.X - i, coord.Y + i);
+                    break;
+                }
+                // Diagonal Right Bottom
+                case Direction.NE:
+                {
+                    if (_matrix.ContainsKey((coord.X + i, coord.Y + i)))
+                        yield return (coord.X + i, coord.Y + i);
+                    break;
+                }
             }
-
-            diagonalRightToLeft.Add(new string(rightToLeft.ToArray()));
         }
-
-        return diagonalRightToLeft;
     }
 
-    private List<string> LeftToRight(int max, List<string> input)
+    public enum Direction
     {
-        var diagonalLeftToRight = new List<string>();
-
-        // LEFT TO RIGHT LEFT TO RIGHT
-        for (int i = 0; i <= max; i++)
-        {
-            var diagonalLeftToRightX = i;
-            var diagonalLeftToRightY = 0;
-
-            var leftToRight = new List<char>();
-            while (diagonalLeftToRightX <= max && diagonalLeftToRightY <= max)
-            {
-                var target = input[diagonalLeftToRightY].ToCharArray()[diagonalLeftToRightX];
-                if (WhiteList.Contains(target))
-                {
-                    leftToRight.Add(target);
-                }
-
-                diagonalLeftToRightY++;
-                diagonalLeftToRightX++;
-            }
-
-            if (i == 0)
-            {
-                diagonalLeftToRight.Add(new string(leftToRight.ToArray()));
-                continue;
-            }
-            
-            diagonalLeftToRightX = 0;
-            diagonalLeftToRightY = i;
-            
-            diagonalLeftToRight.Add(new string(leftToRight.ToArray()));
-
-            leftToRight = new List<char>();
-            while (diagonalLeftToRightX <= max && diagonalLeftToRightY <= max)
-            {
-                var target = input[diagonalLeftToRightY].ToCharArray()[diagonalLeftToRightX];
-                if (WhiteList.Contains(target))
-                {
-                    leftToRight.Add(target);
-                }
-
-                diagonalLeftToRightY++;
-                diagonalLeftToRightX++;
-            }
-
-            diagonalLeftToRight.Add(new string(leftToRight.ToArray()));
-        }
-
-        return diagonalLeftToRight;
+        N,
+        S,
+        W,
+        E,
+        NE,
+        NW,
+        SE,
+        SW
     }
+
 
 
     private void PartTwo()

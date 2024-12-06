@@ -33,7 +33,7 @@ public static class Utils
     public static IEnumerable<List<T>> Partition<T>(this IEnumerable<T> values, int partitionSize)
     {
         return values
-            .Select((s, i) => new { Index = i, Value = s })
+            .Select((s, i) => new {Index = i, Value = s})
             .GroupBy(g => g.Index / partitionSize)
             .Select(s => s.Select(v => v.Value).ToList())
             .ToList();
@@ -67,7 +67,7 @@ public static class Utils
             ? firstSplit[1].Split(second, StringSplitOptions.RemoveEmptyEntries)
             : Array.Empty<string>();
 
-        return new[] { firstSplit, secondSplit };
+        return new[] {firstSplit, secondSplit};
     }
 
     public static int ParseSingleInt(this string s) => int.Parse(s.Where(char.IsNumber).ToArray());
@@ -82,7 +82,23 @@ public static class Utils
         }
     }
 
-    public static IEnumerable<T> AppendLine<T>(this IEnumerable<T> source, T value) => source.Concat(new[] { value });
+    public static IEnumerable<T> AppendLine<T>(this IEnumerable<T> source, T value) => source.Concat(new[] {value});
+
+    public static T[,] To2DArray<T>(this T[][] source)
+    {
+        int rows = source.Length;
+        int cols = source[0].Length;
+        var result = new T[rows, cols];
+        for (int i = 0; i < rows; i++)
+        {
+            for (int j = 0; j < cols; j++)
+            {
+                result[i, j] = source[i][j];
+            }
+        }
+
+        return result;
+    }
 
     public static HashSet<long> GetDuplicates(this List<long> pInputList1, List<long> pInputList2)
     {
